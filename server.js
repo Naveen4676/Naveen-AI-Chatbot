@@ -35,9 +35,9 @@ app.post("/chat", async (req, res) => {
             headers: { "Connection": "keep-alive" } // ✅ Reuse connection for speed
         });
 
-        // ✅ Send request to Gemini API
+        // ✅ Send request to Gemini API (Updated Model Name)
         const response = await axiosInstance.post(
-            `https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro:generateContent?key=${GEMINI_API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
             { contents: [{ role: "user", parts: [{ text: message }] }] }
         );
 
