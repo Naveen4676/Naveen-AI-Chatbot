@@ -69,6 +69,10 @@ app.post("/chat", async (req, res) => {
         });
     }
 });
+app.get("/api", (req, res) => {
+    res.json({ message: "Hello from the backend!" });
+  });
+  
 
 // ✅ Optimize Server for High Performance
 const PORT = process.env.PORT || 5000;
