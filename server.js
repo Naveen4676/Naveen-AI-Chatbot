@@ -11,6 +11,8 @@ app.use(compression()); // ✅ Compress responses to speed up data transfer
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
+console.log("🔑 API Key Loaded:", GEMINI_API_KEY ? "✅ Yes" : "❌ No");
+
 if (!GEMINI_API_KEY) {
     console.error("❌ ERROR: GEMINI_API_KEY is missing! Set it in your .env file.");
     process.exit(1);
@@ -42,37 +44,34 @@ app.post("/chat", async (req, res) => {
             return res.status(400).json({ error: "❌ Message is required!" });
         }
 
-        // ✅ Set up Axios with Keep-Alive for faster requests
-        const axiosInstance = axios.create({
-            timeout: 5000, // ✅ Set request timeout to 5 seconds
-            headers: { "Connection": "keep-alive" } // ✅ Reuse connection for speed
-        });
+        console.log("📩 User Message:", message);
 
-        // ✅ Send request to Gemini API (Ensuring correct model name)
-        const response = await axiosInstance.post(
+        // ✅ Send request to Gemini API
+        const response = await axios.post(
             `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
             {
                 contents: [{ role: "user", parts: [{ text: message }] }]
-            }
+            },
+            { headers: { "Content-Type": "application/json" } }
         );
+
+        console.log("✅ API Response:", JSON.stringify(response.data, null, 2));
 
         // ✅ Extract response fast
         const reply = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "🤖 No response received.";
-
         res.json({ reply });
-
     } catch (error) {
         console.error("🔴 ERROR FROM GEMINI API:", error.response?.data || error.message);
         res.status(500).json({
-            error: "❌ Something went wrong!",
+            error: "❌ API request failed!",
             details: error.response?.data || error.message
         });
     }
 });
+
 app.get("/api", (req, res) => {
     res.json({ message: "Hello from the backend!" });
-  });
-  
+});
 
 // ✅ Optimize Server for High Performance
 const PORT = process.env.PORT || 5000;
