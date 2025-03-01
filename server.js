@@ -21,6 +21,19 @@ app.get("/", (req, res) => {
     res.send("🚀 Chatbot API is running fast!");
 });
 
+// ✅ Route to list available models (for debugging)
+app.get("/models", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `https://generativelanguage.googleapis.com/v1/models?key=${GEMINI_API_KEY}`
+        );
+        res.json(response.data);
+    } catch (error) {
+        console.error("🔴 ERROR FETCHING MODELS:", error.response?.data || error.message);
+        res.status(500).json({ error: "❌ Unable to fetch models!", details: error.response?.data || error.message });
+    }
+});
+
 // ✅ Chatbot Route (Optimized for Speed)
 app.post("/chat", async (req, res) => {
     try {
@@ -35,10 +48,12 @@ app.post("/chat", async (req, res) => {
             headers: { "Connection": "keep-alive" } // ✅ Reuse connection for speed
         });
 
-        // ✅ Send request to Gemini API (Updated Model Name)
+        // ✅ Send request to Gemini API (Ensuring correct model name)
         const response = await axiosInstance.post(
             `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
-            { contents: [{ role: "user", parts: [{ text: message }] }] }
+            {
+                contents: [{ role: "user", parts: [{ text: message }] }]
+            }
         );
 
         // ✅ Extract response fast
